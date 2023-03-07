@@ -1,12 +1,26 @@
 const express = require('express')
 const app = express()
 const path = require('path')
+const { logger } = require('./middleware/logger')
+const { errorHandler } = require('./middleware/errorHandler')
+const cors = require('./config/cors')
+const cookieParser = require('cookie-parser')
 const PORT = process.env.PORT || 3500
 
-app.use('/', express.static(path.join(__dirname, '/public')))
+// Log requests
+app.use(logger)
+// Configure CORS
+app.use(cors)
+// Allow cookie parsing
+app.use(cookieParser())
+// Allow JSON processing
+app.use(express.json())
+// Define static files location
+app.use(express.static('public'))
 
+// Root route
 app.use('/', require('./routes/root'))
-
+// Other routes
 app.all('*', (req, res) => {
     res.status(404)
     if (req.accepts('html')) {
@@ -18,4 +32,9 @@ app.all('*', (req, res) => {
     }
 })
 
+// Error handler
+app.use(errorHandler)
+
+// Start server
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`))
+
