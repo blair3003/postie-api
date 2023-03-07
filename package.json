@@ -1,0 +1,27 @@
+{
+  "name": "postie-api",
+  "version": "1.0.0",
+  "description": "The backend API for the Postie progressive web application.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server",
+    "dev": "nodemon server"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/blair3003/postie-api.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/blair3003/postie-api/issues"
+  },
+  "homepage": "https://github.com/blair3003/postie-api#readme",
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.21"
+  }
+}
