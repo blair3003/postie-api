@@ -3,51 +3,75 @@ const mongoose = require('mongoose')
 const User = require('../models/User')
 const Post = require('../models/Post')
 
-const index = async (req, res) => {    
+const index = async (req, res) => {
+	
+	// Get user list without passwords
 	const users = await User.find().select('-password').lean()    
 	if (!users?.length) {
-		return res.status(400).json({ message: 'No users found' })		
+		return res.status(400).json({ message: 'No users found!' })		
 	}
 	res.json(users)
 }
 
 const store = async (req, res) => {
-    const { name, email, password, roles } = req.body
-    if (!name || !email || !password || !Array.isArray(roles)) {
-		return res.status(400).json({ message: 'Missing required fields' })
+
+	// Validate data
+    const { name, email, password, pic, roles } = req.body
+	try {
+		if (!name || !email || !password) throw new Error('Missing required fields!')
+		if (roles && !Array.isArray(roles)) throw new Error('Roles is not an array!')
+	} catch (err) {
+		return res.status(400).json({ message: err.message })
 	}
+
+	// Check for existing user
     const userExists = await User.findOne({ $or: [{ name }, { email }] }).collation({ locale: 'en', strength: 2 }).lean().exec()
 	if (userExists) {
-		return res.status(409).json({ message: 'User exists' })
+		return res.status(409).json({ message: 'User name or email exists!' })
 	}
+
+	// Hash password and create user
     const hash = await bcrypt.hash(password, 10)
-    const user = await User.create({ name, email, password: hash, roles })
+    const user = await User.create({ name, email, password: hash, pic, roles })
     if (!user) {
-		return res.status(400).json({ message: 'Failed to create user' })
+		return res.status(400).json({ message: 'Failed to create user!' })
 	}
 	res.status(201).json({ message: 'New user created', user })	
 }
 
 const update = async (req, res) => {
+	
+	// Validate data
     const { id, name, email, password, roles, active } = req.body
-    if (!id || !mongoose.Types.ObjectId.isValid(id) || !name || !email || !Array.isArray(roles) || !roles.length || typeof active !== 'boolean') {
-		return res.status(400).json({ message: 'Missing required fields' })
+	try {
+		if (!id || !mongoose.Types.ObjectId.isValid(id)) throw new Error('Valid User ID required!')
+		if (!name || !email) throw new Error('Missing required fields!')
+		if (roles && !Array.isArray(roles)) throw new Error('Roles is not an array!')
+		if (active && typeof active !== 'boolean') throw new Error('Active is not a boolean!')
+	} catch (err) {
+		return res.status(400).json({ error: err.message })
 	}
+
+	// Get user and check for duplicate
     const [user, userExists] = await Promise.all([
 		User.findById(id).exec(),
 		User.findOne({ $or: [{ name }, { email }] }).collation({ locale: 'en', strength: 2 }).lean().exec()
 	])
-    if (!user) {
-		return res.status(400).json({ message: 'User not found' })
+	try {
+		if (!user) throw new Error('User not found!')
+		if (userExists && userExists?._id.toString() !== id) throw new Error('User name or email exists!')
+	} catch (err) {
+		return res.status(400).json({ error: err.message })
 	}
-	if (userExists && userExists?._id.toString() !== id) {
-		return res.status(409).json({ message: 'User exists' })
-	}
+
+	// Update user properties
     user.name = name
     user.email = email    
-    user.roles = roles
-    user.active = active
+    if (roles) user.roles = roles
+    if (active) user.active = active
     if (password) user.password = await bcrypt.hash(password, 10)
+
+	// Save user
     const updated = await user.save()
     if (!updated) {
 		return res.status(400).json({ message: 'Failed to update user' })
@@ -56,20 +80,26 @@ const update = async (req, res) => {
 }
 
 const destroy = async (req, res) => {
+
+	// Validate data
     const { id } = req.body
     if (!id || !mongoose.Types.ObjectId.isValid(id)) {
-		return res.status(400).json({ message: 'User ID required' })
+		return res.status(400).json({ message: 'Valid User ID required' })
 	}
+
+	// Get user and check for dependencies
     const [user, post] = await Promise.all([
 		User.findById(id).exec(),
 		Post.findOne({ "author.id": id }).lean().exec()
 	])
-    if (!user) {
-		return res.status(400).json({ message: 'User not found' })		
+	try {
+		if (!user) throw new Error('User not found!')
+		if (post) throw new Error('User has posts!')
+	} catch (err) {
+		return res.status(400).json({ error: err.message })
 	}
-	if (post) {
-		return res.status(400).json({ message: 'User has posts' })		
-	}
+
+	// Delete user	
     const deleted = await user.deleteOne()
     if (!deleted) {
 		return res.status(400).json({ message: 'Failed to delete user' })
