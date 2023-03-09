@@ -22,10 +22,11 @@ const commentSchema = new mongoose.Schema({
 		type: String,
 		required: true
 	},
-	comments: [this]
-},
-{
-	timestamps: true
+	comments: [this],
+	createdAt: {
+		type: Date,
+		default: Date.now
+	}
 })
 
 const postSchema = new mongoose.Schema({

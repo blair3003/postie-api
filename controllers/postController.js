@@ -5,7 +5,8 @@ const User = require('../models/User')
 const index = async (req, res) => {
     
     // Get post list without comments
-	const posts = await Post.find().select('-comments').lean()    
+	// const posts = await Post.find().select('-comments').lean()    
+	const posts = await Post.find().lean()    
 	if (!posts?.length) {
 		return res.status(400).json({ message: 'No posts found' })		
 	}
