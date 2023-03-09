@@ -38,8 +38,68 @@ const store = async (req, res) => {
     res.status(201).json({ message: 'New post created', post })
 }
 
-const update = async (req, res) => { }
+const update = async (req, res) => {
 
-const destroy = async (req, res) => { }
+    // Validate data
+    const { id, title, authorId, body, thumbnail, tags } = req.body
+    try {
+		if (!id || !mongoose.Types.ObjectId.isValid(id)) throw new Error('Valid Post ID required!')
+        if (!title || !body) throw new Error('Missing required fields!')
+        if (!authorId || !mongoose.Types.ObjectId.isValid(authorId)) throw new Error('Valid author ID required!')
+        if (tags && !Array.isArray(tags)) throw new Error('Tags is not an array!')
+    } catch (err) {
+        return res.status(400).json({ message: err.message })
+    }
+
+    // Check for existing post and author
+    const [post, author] = await Promise.all([
+        Post.findById(id).exec(),
+        User.findById(authorId).exec()
+    ])
+    try {
+        if (!post) throw new Error('Post does not exist!')
+        if (!author) throw new Error('Author does not exist!')
+    } catch (err) {
+        return res.status(400).json({ error: err.message })
+    }
+
+    // Update post properties
+    post.title = title
+    post.body = body    
+    post.author.id = authorId    
+    post.author.name = author.name    
+    post.author.pic = author.pic
+    if (thumbnail) post.thumbnail = thumbnail
+    if (tags) post.tags = tags
+
+    // Save post
+    const updated = await post.save()
+    if (!updated) {
+        return res.status(400).json({ message: 'Failed to update post' })
+    }
+    res.json({ message: 'Post updated', updated })
+}
+
+const destroy = async (req, res) => {
+
+	// Validate data
+    const { id } = req.body
+    if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+		return res.status(400).json({ message: 'Valid Post ID required' })
+	}
+    
+	// Get post
+    const post = await Post.findById(id).exec()
+    if (!post) {
+		return res.status(400).json({ message: 'Post does not exist!' })
+	}
+
+	// Delete post	
+    const deleted = await post.deleteOne()
+    if (!deleted) {
+		return res.status(400).json({ message: 'Failed to delete post' })
+	}
+	res.json({ message: 'Post deleted', deleted })
+}
 
 module.exports = { index, store, update, destroy }
