@@ -17,16 +17,19 @@ const authorSchema = new mongoose.Schema({
 })
 
 const commentsSchema = new mongoose.Schema({
-	id: {
-		type: mongoose.Schema.Types.ObjectId,
-		ref: 'Comment'
-	},
 	author: authorSchema,
 	body: {
 		type: String,
 		required: true
 	},
-	comments: [this]			
+	parent: {
+		type: mongoose.Schema.Types.ObjectId,
+		required: false,
+		ref: 'Comment'
+	},			
+},
+{
+	timestamps: true
 })
 
 const postSchema = new mongoose.Schema({

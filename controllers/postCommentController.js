@@ -1,7 +1,6 @@
 const mongoose = require('mongoose')
 const Post = require('../models/Post')
 const User = require('../models/User')
-const Comment = require('../models/Comment')
 
 const store = async (req, res) => {
 
@@ -28,45 +27,23 @@ const store = async (req, res) => {
         return res.status(400).json({ error: err.message })
     }
 
-    const findParent = (parent, id) => {
-        for (let comment of parent.comments) {
-            console.log(comment._id?.toString())
-            if (comment._id?.toString() === id) {
-                return comment
-            }
-            const nested = findParent(comment, id)
-            if (nested) {
-                return nested
-            }
-        }
-        return null
-    }
-
-    const parent = (parentId) ? findParent(post, parentId) : post
-
-    console.log(post.comments)
-    console.log(parentId)
-
     // Add comment to post
-    const comment = {
-        _id: new mongoose.Types.ObjectId(),
+    post.comments.push({
         author: {
             id: author.id,
             name: author.name,
             pic: author.pic
         },
         body,
-        createdAt: new Date()
-    }
-
-    parent.comments.push(comment)
+        parent: parentId
+    })
 
     // Save post
-    const updatedPost = await post.save()
-    if (!updatedPost) {
+    const updated = await post.save()
+    if (!updated) {
         return res.status(400).json({ message: 'Failed to add comment' })
     }
-    res.json({ message: 'Comment added to post', updatedPost })
+    res.json({ message: 'Comment added to post', updated })
 }
 
 const destroy = async (req, res) => {}
