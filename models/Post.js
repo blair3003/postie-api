@@ -16,17 +16,17 @@ const authorSchema = new mongoose.Schema({
 	}
 })
 
-const commentSchema = new mongoose.Schema({
+const commentsSchema = new mongoose.Schema({
+	id: {
+		type: mongoose.Schema.Types.ObjectId,
+		ref: 'Comment'
+	},
 	author: authorSchema,
 	body: {
 		type: String,
 		required: true
 	},
-	comments: [this],
-	createdAt: {
-		type: Date,
-		default: Date.now
-	}
+	comments: [this]			
 })
 
 const postSchema = new mongoose.Schema({
@@ -47,7 +47,7 @@ const postSchema = new mongoose.Schema({
 		type: [String],
 		default: []
 	},
-	comments: [commentSchema]
+	comments: [commentsSchema]
 },
 {
 	timestamps: true
