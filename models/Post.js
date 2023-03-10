@@ -3,12 +3,12 @@ const mongoose = require('mongoose')
 const authorSchema = new mongoose.Schema({
 	id: {
 		type: mongoose.Schema.Types.ObjectId,
-		required: true,
+		required: false,
 		ref: 'User'
 	},
 	name: {
 		type: String,
-		required: true
+		required: false
 	},
 	pic: {
 		type: String,
@@ -20,13 +20,17 @@ const commentsSchema = new mongoose.Schema({
 	author: authorSchema,
 	body: {
 		type: String,
-		required: true
+		required: false
 	},
 	parent: {
 		type: mongoose.Schema.Types.ObjectId,
 		required: false,
 		ref: 'Comment'
-	},			
+	},
+	removed: {
+		type: Boolean,
+		required: false
+	}			
 },
 {
 	timestamps: true

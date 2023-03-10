@@ -41,11 +41,45 @@ const store = async (req, res) => {
     // Save post
     const updated = await post.save()
     if (!updated) {
-        return res.status(400).json({ message: 'Failed to add comment' })
+        return res.status(400).json({ message: 'Failed to add comment!' })
     }
     res.json({ message: 'Comment added to post', updated })
 }
 
-const destroy = async (req, res) => {}
+const destroy = async (req, res) => {
+
+	// Validate data
+    const { id, postId } = req.body
+    try {
+        if (!id || !mongoose.Types.ObjectId.isValid(id)) throw new Error('Valid Post ID required!')
+        if (!postId || !mongoose.Types.ObjectId.isValid(postId)) throw new Error('Valid post ID required!')
+    } catch (err) {
+        return res.status(400).json({ message: err.message })
+    }
+
+    // Get post
+    const post = await Post.findById(postId).exec()
+    if (!post) {
+        return res.status(400).json({ message: 'Post does not exist!' })
+    }
+    
+    // If comment has children, remove content only, otherwise remove comment
+    const comment = post.comments.id(id)
+    if (post.comments.some(comment => comment.parent?.toString() === id)) {
+        comment.author = undefined
+        comment.body = undefined
+        comment.removed = true
+    } else {        
+        post.comments.pull(id)
+        // TODO - recursively remove childless  removed ancestors
+    }
+
+    // Save post
+    const updated = await post.save()
+    if (!updated) {
+        return res.status(400).json({ message: 'Failed to remove comment!' })
+    }
+    res.json({ message: 'Comment removed', updated })
+}
 
 module.exports = { store, destroy }
