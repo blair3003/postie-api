@@ -9,6 +9,9 @@ router.route('/')
 	.patch(postController.update)
 	.delete(postController.destroy)
 
+router.route('/:id')
+	.get(postController.show)
+
 router.route('/comments')
 	.post(postCommentController.store)
 	.delete(postCommentController.destroy)

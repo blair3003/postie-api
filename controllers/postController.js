@@ -5,12 +5,33 @@ const User = require('../models/User')
 const index = async (req, res) => {
     
     // Get post list without comments
-	// const posts = await Post.find().select('-comments').lean()    
-	const posts = await Post.find().lean()    
+	const posts = await Post.aggregate([{
+        $project: { 
+            commentCount: { $size: '$comments' },
+            title: 1,
+            author: 1,
+            thumbnail: 1
+        }
+    }])
 	if (!posts?.length) {
 		return res.status(400).json({ message: 'No posts found' })		
 	}
 	res.json(posts)
+}
+
+const show = async (req, res) => {
+
+    // Validate data
+    const { id } = req.params
+    if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({ message: 'Valid Post ID required' })
+    }    
+    // Get post
+    const post = await Post.findById(id).exec()
+    if (!post) {
+        return res.status(400).json({ message: 'Post does not exist!' })
+    }
+    res.json(post)
 }
 
 const store = async (req, res) => {
@@ -103,4 +124,4 @@ const destroy = async (req, res) => {
 	res.json({ message: 'Post deleted', deleted })
 }
 
-module.exports = { index, store, update, destroy }
+module.exports = { index, show, store, update, destroy }
