@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt')
 const mongoose = require('mongoose')
-const User = require('../models/User')
-const Post = require('../models/Post')
+const User = require('../../models/User')
+const Post = require('../../models/Post')
 
 const index = async (req, res) => {
 	
@@ -11,32 +11,6 @@ const index = async (req, res) => {
 		return res.status(400).json({ message: 'No users found!' })		
 	}
 	res.json(users)
-}
-
-const store = async (req, res) => {
-
-	// Validate data
-    const { name, email, password, pic, roles } = req.body
-	try {
-		if (!name || !email || !password) throw new Error('Missing required fields!')
-		if (roles && !Array.isArray(roles)) throw new Error('Roles is not an array!')
-	} catch (err) {
-		return res.status(400).json({ message: err.message })
-	}
-
-	// Check for existing user
-    const userExists = await User.findOne({ $or: [{ name }, { email }] }).collation({ locale: 'en', strength: 2 }).lean().exec()
-	if (userExists) {
-		return res.status(409).json({ message: 'User name or email exists!' })
-	}
-
-	// Hash password and create user
-    const hash = await bcrypt.hash(password, 10)
-    const user = await User.create({ name, email, password: hash, pic, roles })
-    if (!user) {
-		return res.status(400).json({ message: 'Failed to create user!' })
-	}
-	res.status(201).json({ message: 'New user created', user })	
 }
 
 const update = async (req, res) => {
@@ -107,4 +81,4 @@ const destroy = async (req, res) => {
 	res.json({ message: 'User deleted', deleted })
 }
 
-module.exports = { index, store, update, destroy }
+module.exports = { index, update, destroy }

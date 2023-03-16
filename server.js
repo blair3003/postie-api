@@ -29,6 +29,8 @@ app.use('/', require('./routes/index'))
 // Resource routes
 app.use('/users', require('./routes/resources/userRoutes'))
 app.use('/posts', require('./routes/resources/postRoutes'))
+// Auth routes
+app.use('/auth', require('./routes/auth/authRoutes'))
 // 404 route
 app.all('*', require('./routes/404'))
 

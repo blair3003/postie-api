@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
-const postController = require('../../controllers/postController')
-const postCommentController = require('../../controllers/postCommentController')
+const postController = require('../../controllers/resources/postController')
+const postCommentController = require('../../controllers/resources/postCommentController')
 
 router.route('/')
 	.get(postController.index)
