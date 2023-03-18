@@ -63,15 +63,13 @@ const login = async (req, res) => {
 		{ expiresIn: '1d' }
 	)
 
-	// Create secure cookie with refresh token
+	// Respond with secure cookie (with refresh token) and access token
 	res.cookie('jwt', refreshToken, {
         httpOnly: true,
         secure: true,
         sameSite: 'None',
         maxAge: 1 * 24 * 60 * 60 * 1000 // 1 day
     })
-
-	// Approve login
 	res.json({ message: 'Successful login', accessToken })    
 }
 
