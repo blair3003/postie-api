@@ -24,13 +24,24 @@ const register = async (req, res) => {
 		return res.status(500).json({ message: 'Failed to register user!' })
 	}
 	res.status(201).json({ message: 'New user registered', user })
-
 }
 
 const login = async (req, res) => {
 
-    res.json({ message: 'Hello from the login method' })
-    
+	// Validate data
+    const { email, password } = req.body
+	if (!email || !password) return res.status(400).json({ message: 'Missing required fields!' })
+
+	// Find user
+	const user = await User.findOne({ email }).exec()
+    if (!user || !user.active) return res.status(401).json({ message: 'Unauthorized!' })
+
+	// Check password
+	const match = await bcrypt.compare(password, user.password)
+	if (!match) return res.status(401).json({ message: 'Unauthorized!' })
+
+	// Approve login
+	res.json({ message: 'Successful login', user })    
 }
 
 module.exports = { register, login }
