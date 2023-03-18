@@ -1,4 +1,6 @@
+require('dotenv').config()
 const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
 const User = require('../../models/User')
 
 const register = async (req, res) => {
@@ -40,8 +42,37 @@ const login = async (req, res) => {
 	const match = await bcrypt.compare(password, user.password)
 	if (!match) return res.status(401).json({ message: 'Unauthorized!' })
 
+	// Create access token
+	const accessToken = jwt.sign(
+		{ 
+			"user": {
+				"name": user.name,
+				"email": user.email,
+				"pic": user.pic,
+				"roles": user.roles
+			}
+		},
+		process.env.ACCESS_TOKEN_SECRET,
+		{ expiresIn: '30s' }
+	)
+
+	// Create refresh token
+	const refreshToken = jwt.sign(
+		{ "email": user.email },
+		process.env.REFRESH_TOKEN_SECRET,
+		{ expiresIn: '1d' }
+	)
+
+	// Create secure cookie with refresh token
+	res.cookie('jwt', refreshToken, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'None',
+        maxAge: 1 * 24 * 60 * 60 * 1000 // 1 day
+    })
+
 	// Approve login
-	res.json({ message: 'Successful login', user })    
+	res.json({ message: 'Successful login', accessToken })    
 }
 
 module.exports = { register, login }
