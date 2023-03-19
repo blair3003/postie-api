@@ -67,7 +67,7 @@ const login = async (req, res) => {
 	// Respond with secure cookie (with refresh token) and access token
 	res.cookie('jwt', refreshToken, {
         httpOnly: true,
-        secure: false, // Change to true in dev
+        secure: true, // Change to true in dev
         sameSite: 'None',
         maxAge: 1 * 24 * 60 * 60 * 1000 // 1 day
     })
@@ -118,7 +118,7 @@ const logout = async (req, res) => {
     if (!cookies?.jwt) return res.sendStatus(204)
 
 	// Clear cookie (access token must be removed from application)
-    res.clearCookie('jwt', { httpOnly: true, secure: false, sameSite: 'None' })
+    res.clearCookie('jwt', { httpOnly: true, secure: true, sameSite: 'None' })
     res.json({ message: 'Successful logout' })
 }
 
