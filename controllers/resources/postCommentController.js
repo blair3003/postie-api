@@ -49,6 +49,7 @@ const store = async (req, res) => {
 const destroy = async (req, res) => {
 
 	// Validate data
+    const { id: authID, roles: authRoles } = req.user
     const { id, postId } = req.body
     try {
         if (!id || !mongoose.Types.ObjectId.isValid(id)) throw new Error('Valid Post ID required!')
@@ -65,6 +66,12 @@ const destroy = async (req, res) => {
     
     // If comment has children, remove content only, otherwise remove comment
     const comment = post.comments.id(id)
+    try {
+        if (!comment) throw new Error('Comment does not exist!')
+        if (authID !== comment.author.id && !authRoles.includes('admin')) throw new Error('Unauthorized!')
+    } catch (err) {
+        return res.status(400).json({ error: err.message })
+    }
     if (post.comments.some(comment => comment.parent?.toString() === id)) {
         comment.author = undefined
         comment.body = undefined

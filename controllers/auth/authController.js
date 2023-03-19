@@ -59,7 +59,7 @@ const login = async (req, res) => {
 
 	// Create refresh token
 	const refreshToken = jwt.sign(
-		{ "email": user.email },
+		{ "id": user._id },
 		process.env.REFRESH_TOKEN_SECRET,
 		{ expiresIn: '1d' }
 	)
@@ -67,11 +67,59 @@ const login = async (req, res) => {
 	// Respond with secure cookie (with refresh token) and access token
 	res.cookie('jwt', refreshToken, {
         httpOnly: true,
-        secure: true,
+        secure: false, // Change to true in dev
         sameSite: 'None',
         maxAge: 1 * 24 * 60 * 60 * 1000 // 1 day
     })
 	res.json({ message: 'Successful login', accessToken })    
 }
 
-module.exports = { register, login }
+const refresh = async (req, res) => {
+
+	// Validate data
+	const cookies = req.cookies
+	if (!cookies?.jwt) return res.status(401).json({ message: 'Unauthorized!' })
+
+	// Verify and reissue access token
+	const refreshToken = cookies.jwt
+	jwt.verify(
+		refreshToken,
+        process.env.REFRESH_TOKEN_SECRET,
+        async (err, decoded) => {
+            if (err) return res.status(403).json({ message: 'Forbidden!' })
+
+			// Find user
+			const user = await User.findById(decoded.id).exec()
+			if (!user) return res.status(401).json({ message: 'Unauthorized!' })
+
+			// Create access token
+			const accessToken = jwt.sign(
+				{ 
+					"user": {
+						"id": user._id,
+						"name": user.name,
+						"email": user.email,
+						"pic": user.pic,
+						"roles": user.roles
+					}
+				},
+				process.env.ACCESS_TOKEN_SECRET,
+				{ expiresIn: '30s' }
+			)
+			res.json({ accessToken })
+        }
+	)
+}
+
+const logout = async (req, res) => {
+
+	// Validate data
+    const cookies = req.cookies
+    if (!cookies?.jwt) return res.sendStatus(204)
+
+	// Clear cookie (access token must be removed from application)
+    res.clearCookie('jwt', { httpOnly: true, secure: false, sameSite: 'None' })
+    res.json({ message: 'Successful logout' })
+}
+
+module.exports = { register, login, refresh, logout }

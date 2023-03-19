@@ -14,10 +14,12 @@ const index = async (req, res) => {
 }
 
 const update = async (req, res) => {
-	
+
 	// Validate data
+	const { id: authID, roles: authRoles } = req.user
     const { id, name, email, password, roles, active } = req.body
 	try {
+		if (authID !== id && !authRoles.includes('admin')) throw new Error('Unauthorized!')
 		if (!id || !mongoose.Types.ObjectId.isValid(id)) throw new Error('Valid User ID required!')
 		if (!name || !email) throw new Error('Missing required fields!')
 		if (roles && !Array.isArray(roles)) throw new Error('Roles is not an array!')
@@ -56,9 +58,13 @@ const update = async (req, res) => {
 const destroy = async (req, res) => {
 
 	// Validate data
+	const { roles: authRoles } = req.user
     const { id } = req.body
-    if (!id || !mongoose.Types.ObjectId.isValid(id)) {
-		return res.status(400).json({ message: 'Valid User ID required' })
+	try {
+		if (!authRoles.includes('admin')) throw new Error('Unauthorized!')
+		if (!id || !mongoose.Types.ObjectId.isValid(id)) throw new Error('Valid User ID required!')
+	} catch (err) {
+		return res.status(400).json({ error: err.message })
 	}
 
 	// Get user and check for dependencies

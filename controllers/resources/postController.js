@@ -37,8 +37,10 @@ const show = async (req, res) => {
 const store = async (req, res) => {
 
     // Validate data
+    const { roles: authRoles } = req.user
     const { title, authorId, body, thumbnail, tags } = req.body
     try {
+        if (!authRoles.includes('admin') && !authRoles.includes('author')) throw new Error('Unauthorized!')
         if (!title || !body) throw new Error('Missing required fields!')
         if (!authorId || !mongoose.Types.ObjectId.isValid(authorId)) throw new Error('Valid author ID required!')
 		if (tags && !Array.isArray(tags)) throw new Error('Tags is not an array!')
@@ -63,6 +65,7 @@ const store = async (req, res) => {
 const update = async (req, res) => {
 
     // Validate data
+    const { id: authID, roles: authRoles } = req.user
     const { id, title, authorId, body, thumbnail, tags } = req.body
     try {
 		if (!id || !mongoose.Types.ObjectId.isValid(id)) throw new Error('Valid Post ID required!')
@@ -81,6 +84,7 @@ const update = async (req, res) => {
     try {
         if (!post) throw new Error('Post does not exist!')
         if (!author) throw new Error('Author does not exist!')
+        if (authID !== post.author.id && !authRoles.includes('admin')) throw new Error('Unauthorized!')
     } catch (err) {
         return res.status(400).json({ error: err.message })
     }
@@ -105,16 +109,23 @@ const update = async (req, res) => {
 const destroy = async (req, res) => {
 
 	// Validate data
+    const { id: authID, roles: authRoles } = req.user
     const { id } = req.body
-    if (!id || !mongoose.Types.ObjectId.isValid(id)) {
-		return res.status(400).json({ message: 'Valid Post ID required' })
-	}
+    try {
+		if (!id || !mongoose.Types.ObjectId.isValid(id)) throw new Error('Valid Post ID required!')
+        if (!authorId || !mongoose.Types.ObjectId.isValid(authorId)) throw new Error('Valid author ID required!')
+    } catch (err) {
+        return res.status(400).json({ message: err.message })
+    }
     
 	// Get post
     const post = await Post.findById(id).exec()
-    if (!post) {
-		return res.status(400).json({ message: 'Post does not exist!' })
-	}
+    try {
+        if (!post) throw new Error('Post does not exist!')
+        if (authID !== post.author.id && !authRoles.includes('admin')) throw new Error('Unauthorized!')
+    } catch (err) {
+        return res.status(400).json({ message: err.message })
+    }
 
 	// Delete post	
     const deleted = await post.deleteOne()
