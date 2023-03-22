@@ -54,7 +54,7 @@ const login = async (req, res) => {
 			}
 		},
 		process.env.ACCESS_TOKEN_SECRET,
-		{ expiresIn: '30s' }
+		{ expiresIn: '1d' }
 	)
 
 	// Create refresh token
@@ -104,7 +104,7 @@ const refresh = async (req, res) => {
 					}
 				},
 				process.env.ACCESS_TOKEN_SECRET,
-				{ expiresIn: '30s' }
+				{ expiresIn: '1d' }
 			)
 			res.json({ accessToken })
         }
