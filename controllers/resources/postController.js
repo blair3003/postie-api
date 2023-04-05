@@ -36,6 +36,9 @@ const show = async (req, res) => {
 
 const store = async (req, res) => {
 
+    console.log(req.files)
+    return res.status(201).json({ message: 'Testing' })
+
     // Validate data
     const { roles: authRoles } = req.user
     const { title, authorId, body, thumbnail, tags } = req.body

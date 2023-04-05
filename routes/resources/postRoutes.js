@@ -1,4 +1,5 @@
 const express = require('express')
+const fileUpload = require('express-fileupload')
 const router = express.Router()
 const postController = require('../../controllers/resources/postController')
 const postCommentController = require('../../controllers/resources/postCommentController')
@@ -6,7 +7,11 @@ const verifyJWT = require('../../middleware/verifyJWT')
 
 router.route('/')
 	.get(postController.index)
-	.post(verifyJWT, postController.store)
+	.post(
+		verifyJWT,
+		fileUpload({ createParentPath: true }),
+		postController.store
+	)
 	.patch(verifyJWT, postController.update)
 	.delete(verifyJWT, postController.destroy)
 
