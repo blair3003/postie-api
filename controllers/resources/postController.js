@@ -37,7 +37,30 @@ const show = async (req, res) => {
 
 const store = async (req, res) => {
 
+    // Test image upload
+    console.log(req.file)
     console.log(req.files)
+
+    const buffer = new Buffer.from(req.file.buffer, 'base64')
+    const contentType = req.file.mimetype
+
+    console.log(buffer)
+    console.log(contentType)
+
+    const image = Image.create({ buffer, contentType })
+    if (!image) {
+        return res.status(400).json({ message: 'Failed to upload image!' })
+    }
+    console.log(image)
+    console.log(image._id)
+
+
+    // End testing
+
+
+
+
+
     return res.status(201).json({ message: 'Testing' })
 
     // Validate data
