@@ -1,6 +1,7 @@
 const mongoose = require('mongoose')
 const Post = require('../../models/Post')
 const User = require('../../models/User')
+const Image = require('../../models/Image')
 
 const index = async (req, res) => {
     
