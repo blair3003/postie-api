@@ -29,6 +29,7 @@ app.use('/', require('./routes/index'))
 // Resource routes
 app.use('/users', require('./routes/resources/userRoutes'))
 app.use('/posts', require('./routes/resources/postRoutes'))
+app.use('/images', require('./routes/resources/imageRoutes'))
 // Auth routes
 app.use('/auth', require('./routes/auth/authRoutes'))
 // 404 route
