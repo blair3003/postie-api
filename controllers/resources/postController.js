@@ -40,14 +40,15 @@ const store = async (req, res) => {
     // Test image upload
     console.log(req.file)
     console.log(req.files)
+    console.log(req.files.thumbnail)
 
-    const buffer = new Buffer.from(req.file.buffer, 'base64')
-    const contentType = req.file.mimetype
+    const data = new Buffer.from(req.files.thumbnail.data, 'base64')
+    const mimetype = req.files.thumbnail.mimetype
 
-    console.log(buffer)
-    console.log(contentType)
+    console.log(data)
+    console.log(mimetype)
 
-    const image = Image.create({ buffer, contentType })
+    const image = await Image.create({ data, mimetype })
     if (!image) {
         return res.status(400).json({ message: 'Failed to upload image!' })
     }

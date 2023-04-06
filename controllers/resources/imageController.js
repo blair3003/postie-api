@@ -9,11 +9,11 @@ const show = async (req, res) => {
         return res.status(400).json({ message: 'Valid Image ID required' })
     }    
     // Get image
-    const image = await Image.findById(id).lean().exec()
+    const image = await Image.findById(id).exec()
     if (!image) {
         return res.status(400).json({ message: 'Image does not exist!' })
     }
-    res.json(image)
+    res.set('Content-Type', image.mimetype).send(image.data)
 }
 
 module.exports = { show }
