@@ -37,39 +37,15 @@ const show = async (req, res) => {
 
 const store = async (req, res) => {
 
-    // Test image upload
-    console.log(req.file)
-    console.log(req.files)
-    console.log(req.files.thumbnail)
-
-    const data = new Buffer.from(req.files.thumbnail.data, 'base64')
-    const mimetype = req.files.thumbnail.mimetype
-
-    console.log(data)
-    console.log(mimetype)
-
-    const image = await Image.create({ data, mimetype })
-    if (!image) {
-        return res.status(400).json({ message: 'Failed to upload image!' })
-    }
-    console.log(image)
-    console.log(image._id)
-
-
-    // End testing
-
-
-
-
-
-    return res.status(201).json({ message: 'Testing' })
-
     // Validate data
     const { roles: authRoles } = req.user
-    const { title, authorId, body, thumbnail, tags } = req.body
+    const { title, authorId, body } = req.body    
+    const { thumbnail } = req.files
+    const tags = req.body.tags?.split(',')
+
     try {
         if (!authRoles.includes('admin') && !authRoles.includes('author')) throw new Error('Unauthorized!')
-        if (!title || !body) throw new Error('Missing required fields!')
+        if (!title || !body || !thumbnail) throw new Error('Missing required fields!')
         if (!authorId || !mongoose.Types.ObjectId.isValid(authorId)) throw new Error('Valid author ID required!')
 		if (tags && !Array.isArray(tags)) throw new Error('Tags is not an array!')
     } catch (err) {
@@ -82,8 +58,22 @@ const store = async (req, res) => {
         return res.status(409).json({ message: 'Author does not exist!' })
     }
 
+    // Upload image
+    const data = new Buffer.from(req.files.thumbnail.data, 'base64')
+    const mimetype = req.files.thumbnail.mimetype
+    const image = await Image.create({ data, mimetype })
+    if (!image) {
+        return res.status(400).json({ message: 'Failed to upload image!' })
+    }
+
     // Create post
-    const post = await Post.create({ title, author: { id: authorId, name: author.name, pic: author.pic }, body, thumbnail, tags })
+    const post = await Post.create({
+        title,
+        author: { id: authorId, name: author.name, pic: author.pic },
+        body,
+        thumbnail: `http://localhost:3500/images/${image._id}`,
+        tags
+    })
     if (!post) {
         return res.status(400).json({ message: 'Failed to create post!' })
     }
@@ -94,7 +84,8 @@ const update = async (req, res) => {
 
     // Validate data
     const { id: authID, roles: authRoles } = req.user
-    const { id, title, authorId, body, thumbnail, tags } = req.body
+    const { id, title, authorId, body, tags } = req.body
+    console.log(authorId)
     try {
 		if (!id || !mongoose.Types.ObjectId.isValid(id)) throw new Error('Valid Post ID required!')
         if (!title || !body) throw new Error('Missing required fields!')
@@ -123,7 +114,6 @@ const update = async (req, res) => {
     post.author.id = authorId    
     post.author.name = author.name    
     post.author.pic = author.pic
-    if (thumbnail) post.thumbnail = thumbnail
     if (tags) post.tags = tags
 
     // Save post
@@ -141,7 +131,6 @@ const destroy = async (req, res) => {
     const { id } = req.body
     try {
 		if (!id || !mongoose.Types.ObjectId.isValid(id)) throw new Error('Valid Post ID required!')
-        if (!authorId || !mongoose.Types.ObjectId.isValid(authorId)) throw new Error('Valid author ID required!')
     } catch (err) {
         return res.status(400).json({ message: err.message })
     }
