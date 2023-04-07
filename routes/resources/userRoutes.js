@@ -8,4 +8,7 @@ router.route('/')
 	.patch(verifyJWT, userController.update)
 	.delete(verifyJWT, userController.destroy)
 
+router.route('/:id')
+	.get(userController.show)
+
 module.exports = router

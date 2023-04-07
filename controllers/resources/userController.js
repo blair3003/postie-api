@@ -13,6 +13,25 @@ const index = async (req, res) => {
 	res.json(users)
 }
 
+const show = async (req, res) => {
+
+    // Validate data
+    const { id } = req.params
+    if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({ message: 'Valid User ID required' })
+    }    
+    // Get user
+    const user = await User.findById(id).select(['-password', '-roles']).lean()
+	try {
+		if (!user) throw new Error('User does not exist!')
+		if (!user.active) throw new Error('User is not active!')
+	} catch (err) {
+		return res.status(400).json({ error: err.message })
+	}
+    res.json(user)
+
+}
+
 const update = async (req, res) => {
 
 	// Validate data
@@ -44,7 +63,8 @@ const update = async (req, res) => {
     user.name = name
     user.email = email    
     if (roles) user.roles = roles
-    if (active) user.active = active
+    if (active === true) user.active = true
+    if (active === false) user.active = false
     if (password) user.password = await bcrypt.hash(password, 10)
 
 	// Save user
@@ -87,4 +107,4 @@ const destroy = async (req, res) => {
 	res.json({ message: 'User deleted', deleted })
 }
 
-module.exports = { index, update, destroy }
+module.exports = { index, show, update, destroy }
