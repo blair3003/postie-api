@@ -85,7 +85,6 @@ const update = async (req, res) => {
     // Validate data
     const { id: authID, roles: authRoles } = req.user
     const { id, title, authorId, body, tags } = req.body
-    console.log(authorId)
     try {
 		if (!id || !mongoose.Types.ObjectId.isValid(id)) throw new Error('Valid Post ID required!')
         if (!title || !body) throw new Error('Missing required fields!')
@@ -103,7 +102,7 @@ const update = async (req, res) => {
     try {
         if (!post) throw new Error('Post does not exist!')
         if (!author) throw new Error('Author does not exist!')
-        if (authID !== post.author.id && !authRoles.includes('admin')) throw new Error('Unauthorized!')
+        if (authID !== post.author.id.toString() && !authRoles.includes('admin')) throw new Error('Unauthorized!')
     } catch (err) {
         return res.status(400).json({ error: err.message })
     }
@@ -137,9 +136,10 @@ const destroy = async (req, res) => {
     
 	// Get post
     const post = await Post.findById(id).exec()
+
     try {
         if (!post) throw new Error('Post does not exist!')
-        if (authID !== post.author.id && !authRoles.includes('admin')) throw new Error('Unauthorized!')
+        if (authID !== post.author.id.toString() && !authRoles.includes('admin')) throw new Error('Unauthorized!')
     } catch (err) {
         return res.status(400).json({ message: err.message })
     }
