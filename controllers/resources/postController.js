@@ -39,7 +39,7 @@ const store = async (req, res) => {
 
     // Validate data
     const { roles: authRoles } = req.user
-    const { title, authorId, body } = req.body    
+    const { title, authorId, body } = req.body
     const { thumbnail } = req.files
     const tags = req.body.tags?.split(',')
 
@@ -59,8 +59,8 @@ const store = async (req, res) => {
     }
 
     // Upload image
-    const data = new Buffer.from(req.files.thumbnail.data, 'base64')
-    const mimetype = req.files.thumbnail.mimetype
+    const data = new Buffer.from(thumbnail.data, 'base64')
+    const mimetype = thumbnail.mimetype
     const image = await Image.create({ data, mimetype })
     if (!image) {
         return res.status(400).json({ message: 'Failed to upload image!' })

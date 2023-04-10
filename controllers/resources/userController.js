@@ -2,6 +2,7 @@ const bcrypt = require('bcrypt')
 const mongoose = require('mongoose')
 const User = require('../../models/User')
 const Post = require('../../models/Post')
+const Image = require('../../models/Image')
 
 const index = async (req, res) => {
 	
@@ -36,9 +37,15 @@ const update = async (req, res) => {
 
 	// Validate data
 	const { id: authID, roles: authRoles } = req.user
-    const { id, name, email, password, roles, active } = req.body
+    const { id, name, email, password, active } = req.body
+    const pic = req.file ?? null
+    const roles = req.body.roles?.split(',')
+
+    console.log('pic')
+    console.log(pic)
+
 	try {
-		if (authID !== id && !authRoles.includes('admin')) throw new Error('Unauthorized!')
+		if (authID !== id && !authRoles.includes('admin')) throw new Error('Unauthorized! - not allowed')
 		if (!id || !mongoose.Types.ObjectId.isValid(id)) throw new Error('Valid User ID required!')
 		if (!name || !email) throw new Error('Missing required fields!')
 		if (roles && !Array.isArray(roles)) throw new Error('Roles is not an array!')
@@ -59,13 +66,35 @@ const update = async (req, res) => {
 		return res.status(400).json({ error: err.message })
 	}
 
+
 	// Update user properties
     user.name = name
-    user.email = email    
+    user.email = email
     if (roles) user.roles = roles
     if (active === true) user.active = true
     if (active === false) user.active = false
     if (password) user.password = await bcrypt.hash(password, 10)
+
+
+	// Upload image
+    if (pic) {
+    	console.log('adding pic')
+	    const data = new Buffer.from(pic.buffer, 'base64')
+    	console.log(data)
+	    const mimetype = pic.mimetype
+    	console.log(mimetype)
+	    const image = await Image.create({ data, mimetype })
+	    if (!image) {
+	        return res.status(400).json({ message: 'Failed to upload image!' })
+	    }
+    	console.log(`http://localhost:3500/images/${image._id}`)
+	    user.pic = `http://localhost:3500/images/${image._id}`
+	    console.log(user.pic)
+    }
+
+    console.log('setting user as:')
+    console.log(user)
+
 
 	// Save user
     const updated = await user.save()
