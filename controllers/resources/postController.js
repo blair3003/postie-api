@@ -17,7 +17,21 @@ const index = async (req, res) => {
 	if (!posts?.length) {
 		return res.status(400).json({ message: 'No posts found' })		
 	}
-	res.json(posts)
+    // Update post list to include author information
+    const postsWithAuthor = await Promise.all(
+        posts.map(async post => {
+            const author = await User.findById(post.author).lean().exec()
+            return {
+                ...post,
+                author: {
+                    id: author._id,
+                    name: author.name,
+                    pic: author.pic
+                }
+            }
+        })
+    )
+	res.json(postsWithAuthor)
 }
 
 const show = async (req, res) => {
@@ -26,13 +40,42 @@ const show = async (req, res) => {
     const { id } = req.params
     if (!id || !mongoose.Types.ObjectId.isValid(id)) {
         return res.status(400).json({ message: 'Valid Post ID required' })
-    }    
+    }
     // Get post
-    const post = await Post.findById(id).exec()
+    const post = await Post.findById(id).lean().exec()
     if (!post) {
         return res.status(400).json({ message: 'Post does not exist!' })
     }
-    res.json(post)
+
+    // Update comments to include author information
+    const commentsWithAuthor = await Promise.all(
+        post.comments.map(async comment => {
+            const author = await User.findById(comment.author).lean().exec()
+            return {
+                ...comment,
+                author: {
+                    id: author._id,
+                    name: author.name,
+                    pic: author.pic
+                }
+            }
+        })
+    )
+    // Get author
+    const author = await User.findById(post.author).lean().exec()
+
+    // Update post to include author information
+    const postWithAuthor = {
+        ...post,
+        author: {
+            id: author._id,
+            name: author.name,
+            pic: author.pic
+        },
+        comments: commentsWithAuthor
+    }
+
+    res.json(postWithAuthor)
 }
 
 const store = async (req, res) => {
@@ -69,7 +112,7 @@ const store = async (req, res) => {
     // Create post
     const post = await Post.create({
         title,
-        author: { id: authorId, name: author.name, pic: author.pic },
+        author: authorId,
         body,
         thumbnail: `http://localhost:3500/images/${image._id}`,
         tags
@@ -102,7 +145,7 @@ const update = async (req, res) => {
     try {
         if (!post) throw new Error('Post does not exist!')
         if (!author) throw new Error('Author does not exist!')
-        if (authID !== post.author.id.toString() && !authRoles.includes('admin')) throw new Error('Unauthorized!')
+        if (authID !== post.author.toString() && !authRoles.includes('admin')) throw new Error('Unauthorized!')
     } catch (err) {
         return res.status(400).json({ error: err.message })
     }
@@ -110,9 +153,7 @@ const update = async (req, res) => {
     // Update post properties
     post.title = title
     post.body = body    
-    post.author.id = authorId    
-    post.author.name = author.name    
-    post.author.pic = author.pic
+    post.author = authorId
     if (tags) post.tags = tags
 
     // Save post
@@ -139,7 +180,7 @@ const destroy = async (req, res) => {
 
     try {
         if (!post) throw new Error('Post does not exist!')
-        if (authID !== post.author.id.toString() && !authRoles.includes('admin')) throw new Error('Unauthorized!')
+        if (authID !== post.author.toString() && !authRoles.includes('admin')) throw new Error('Unauthorized!')
     } catch (err) {
         return res.status(400).json({ message: err.message })
     }

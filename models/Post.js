@@ -1,23 +1,11 @@
 const mongoose = require('mongoose')
 
-const authorSchema = new mongoose.Schema({
-	id: {
+const commentsSchema = new mongoose.Schema({
+	author: {
 		type: mongoose.Schema.Types.ObjectId,
-		required: false,
+		required: true,
 		ref: 'User'
 	},
-	name: {
-		type: String,
-		required: false
-	},
-	pic: {
-		type: String,
-		required: false
-	}
-})
-
-const commentsSchema = new mongoose.Schema({
-	author: authorSchema,
 	body: {
 		type: String,
 		required: false
@@ -41,7 +29,11 @@ const postSchema = new mongoose.Schema({
 		type: String,
 		required: true
 	},
-	author: authorSchema,
+	author: {
+		type: mongoose.Schema.Types.ObjectId,
+		required: true,
+		ref: 'User'
+	},
 	body: {
 		type: String,
 		required: true

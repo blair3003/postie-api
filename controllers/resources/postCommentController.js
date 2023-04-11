@@ -29,11 +29,7 @@ const store = async (req, res) => {
 
     // Add comment to post
     post.comments.push({
-        author: {
-            id: author.id,
-            name: author.name,
-            pic: author.pic
-        },
+        author: authorId,
         body,
         parent: parentId
     })
@@ -68,7 +64,7 @@ const destroy = async (req, res) => {
     const comment = post.comments.id(id)
     try {
         if (!comment) throw new Error('Comment does not exist!')
-        if (authID !== comment.author.id && !authRoles.includes('admin')) throw new Error('Unauthorized!')
+        if (authID !== comment.author.toString() && !authRoles.includes('admin')) throw new Error('Unauthorized!')
     } catch (err) {
         return res.status(400).json({ error: err.message })
     }
