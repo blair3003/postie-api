@@ -83,7 +83,7 @@ const store = async (req, res) => {
     // Validate data
     const { roles: authRoles } = req.user
     const { title, authorId, body } = req.body
-    const { thumbnail } = req.files
+    const thumbnail = req.file ?? null
     const tags = req.body.tags?.split(',')
 
     try {
@@ -102,7 +102,7 @@ const store = async (req, res) => {
     }
 
     // Upload image
-    const data = new Buffer.from(thumbnail.data, 'base64')
+    const data = new Buffer.from(thumbnail.buffer, 'base64')
     const mimetype = thumbnail.mimetype
     const image = await Image.create({ data, mimetype })
     if (!image) {

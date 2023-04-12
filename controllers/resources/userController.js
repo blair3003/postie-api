@@ -41,9 +41,6 @@ const update = async (req, res) => {
     const pic = req.file ?? null
     const roles = req.body.roles?.split(',')
 
-    console.log('pic')
-    console.log(pic)
-
 	try {
 		if (authID !== id && !authRoles.includes('admin')) throw new Error('Unauthorized! - not allowed')
 		if (!id || !mongoose.Types.ObjectId.isValid(id)) throw new Error('Valid User ID required!')
@@ -78,18 +75,13 @@ const update = async (req, res) => {
 
 	// Upload image
     if (pic) {
-    	console.log('adding pic')
 	    const data = new Buffer.from(pic.buffer, 'base64')
-    	console.log(data)
 	    const mimetype = pic.mimetype
-    	console.log(mimetype)
 	    const image = await Image.create({ data, mimetype })
 	    if (!image) {
 	        return res.status(400).json({ message: 'Failed to upload image!' })
 	    }
-    	console.log(`http://localhost:3500/images/${image._id}`)
 	    user.pic = `http://localhost:3500/images/${image._id}`
-	    console.log(user.pic)
     }
 
     console.log('setting user as:')
