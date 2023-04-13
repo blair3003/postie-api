@@ -54,14 +54,14 @@ const login = async (req, res) => {
 			}
 		},
 		process.env.ACCESS_TOKEN_SECRET,
-		{ expiresIn: '1d' }
+		{ expiresIn: '30s' }
 	)
 
 	// Create refresh token
 	const refreshToken = jwt.sign(
 		{ "id": user._id },
 		process.env.REFRESH_TOKEN_SECRET,
-		{ expiresIn: '1d' }
+		{ expiresIn: '15m' }
 	)
 
 	// Respond with secure cookie (with refresh token) and access token
@@ -104,7 +104,7 @@ const refresh = async (req, res) => {
 					}
 				},
 				process.env.ACCESS_TOKEN_SECRET,
-				{ expiresIn: '1d' }
+				{ expiresIn: '30s' }
 			)
 			res.json({ accessToken })
         }
