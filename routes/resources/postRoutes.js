@@ -17,14 +17,30 @@ router.route('/')
 		fileSizeLimiter,
 		postController.store
 	)
-	.patch(verifyJWT, postController.update)
-	.delete(verifyJWT, postController.destroy)
+	.patch(
+		verifyJWT,
+		upload.none(),
+		postController.update
+	)
+	.delete(
+		verifyJWT,
+		upload.none(),
+		postController.destroy
+	)
 
 router.route('/:id')
 	.get(postController.show)
 
 router.route('/comments')
-	.post(verifyJWT, postCommentController.store)
-	.delete(verifyJWT, postCommentController.destroy)
+	.post(
+		verifyJWT,
+		upload.none(),
+		postCommentController.store
+	)
+	.delete(
+		verifyJWT,
+		upload.none(),
+		postCommentController.destroy
+	)
 
 module.exports = router

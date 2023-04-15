@@ -1,17 +1,29 @@
 const express = require('express')
-const router = express.Router()
+const multer = require('multer')
 const authController = require('../../controllers/auth/authController')
 
+const router = express.Router()
+const upload = multer()
+
 router.route('/')
-	.post(authController.login)
+	.post(
+		upload.none(),
+		authController.login
+	)
 
 router.route('/register')
-	.post(authController.register)
+	.post(
+		upload.none(),
+		authController.register
+	)
 
 router.route('/refresh')
 	.get(authController.refresh)
 
 router.route('/logout')
-	.post(authController.logout)
+	.post(
+		upload.none(),
+		authController.logout
+	)
 
 module.exports = router

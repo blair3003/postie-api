@@ -128,6 +128,7 @@ const update = async (req, res) => {
     // Validate data
     const { id: authID, roles: authRoles } = req.user
     const { id, title, authorId, body, tags } = req.body
+
     try {
 		if (!id || !mongoose.Types.ObjectId.isValid(id)) throw new Error('Valid Post ID required!')
         if (!title || !body) throw new Error('Missing required fields!')
@@ -183,6 +184,15 @@ const destroy = async (req, res) => {
         if (authID !== post.author.toString() && !authRoles.includes('admin')) throw new Error('Unauthorized!')
     } catch (err) {
         return res.status(400).json({ message: err.message })
+    }
+
+    // Get image
+    const image = await Image.findById(post.thumbnail.split('/').slice(-1)[0]).exec()
+
+    // Delete image
+    const deletedImage = await image.deleteOne()
+    if (!deletedImage) {
+        return res.status(400).json({ message: 'Failed to delete image' })
     }
 
 	// Delete post	

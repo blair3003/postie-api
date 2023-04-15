@@ -6,6 +6,9 @@ const store = async (req, res) => {
 
     // Validate data
     const { postId, authorId, body, parentId } = req.body
+    console.log('postId, authorId, body, parentId')
+    console.log(postId, authorId, body, parentId)
+    
     try {
         if (!body) throw new Error('Missing required fields!')
         if (!postId || !mongoose.Types.ObjectId.isValid(postId)) throw new Error('Valid post ID required!')

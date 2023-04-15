@@ -73,19 +73,21 @@ const update = async (req, res) => {
     if (password) user.password = await bcrypt.hash(password, 10)
 
 
-	// Upload image
+	// Replace image
     if (pic) {
 	    const data = new Buffer.from(pic.buffer, 'base64')
 	    const mimetype = pic.mimetype
-	    const image = await Image.create({ data, mimetype })
-	    if (!image) {
-	        return res.status(400).json({ message: 'Failed to upload image!' })
+	    const newPic = await Image.create({ data, mimetype })
+	    if (!newPic) {
+	        return res.status(400).json({ message: 'Failed to upload new pic!' })
 	    }
-	    user.pic = `http://localhost:3500/images/${image._id}`
+	    const oldPic = await Image.findById(user.pic.split('/').slice(-1)[0]).exec()
+	    const deletedImage = await oldPic.deleteOne()
+	    if (!deletedImage) {
+	        return res.status(400).json({ message: 'Failed to delete existing pic' })
+	    }
+	    user.pic = `http://localhost:3500/images/${newPic._id}`
     }
-
-    console.log('setting user as:')
-    console.log(user)
 
 
 	// Save user
@@ -119,6 +121,15 @@ const destroy = async (req, res) => {
 	} catch (err) {
 		return res.status(400).json({ error: err.message })
 	}
+
+	// Get image
+    const image = await Image.findById(user.pic.split('/').slice(-1)[0]).exec()
+
+    // Delete image
+    const deletedImage = await image.deleteOne()
+    if (!deletedImage) {
+        return res.status(400).json({ message: 'Failed to delete image' })
+    }
 
 	// Delete user	
     const deleted = await user.deleteOne()
