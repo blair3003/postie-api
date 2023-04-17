@@ -81,10 +81,12 @@ const update = async (req, res) => {
 	    if (!newPic) {
 	        return res.status(400).json({ message: 'Failed to upload new pic!' })
 	    }
-	    const oldPic = await Image.findById(user.pic.split('/').slice(-1)[0]).exec()
-	    const deletedImage = await oldPic.deleteOne()
-	    if (!deletedImage) {
-	        return res.status(400).json({ message: 'Failed to delete existing pic' })
+		const oldPic = await Image.findById(user.pic.split('/').slice(-1)[0]).exec()
+	    if (oldPic) {
+		    const deletedImage = await oldPic.deleteOne()
+		    if (!deletedImage) {
+		        return res.status(400).json({ message: 'Failed to delete existing pic' })
+		    }
 	    }
 	    user.pic = `http://localhost:3500/images/${newPic._id}`
     }
