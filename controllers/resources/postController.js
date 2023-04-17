@@ -11,8 +11,13 @@ const index = async (req, res) => {
             commentCount: { $size: '$comments' },
             title: 1,
             author: 1,
-            thumbnail: 1
+            thumbnail: 1,
+            createdAt: 1
         }
+    }, {
+        $sort: {
+            createdAt: -1
+        }        
     }])
 	if (!posts?.length) {
 		return res.status(400).json({ message: 'No posts found' })		
