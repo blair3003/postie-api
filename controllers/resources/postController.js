@@ -132,7 +132,8 @@ const update = async (req, res) => {
 
     // Validate data
     const { id: authID, roles: authRoles } = req.user
-    const { id, title, authorId, body, tags } = req.body
+    const { id, title, authorId, body } = req.body
+    const tags = req.body.tags?.split(',')
 
     try {
 		if (!id || !mongoose.Types.ObjectId.isValid(id)) throw new Error('Valid Post ID required!')
