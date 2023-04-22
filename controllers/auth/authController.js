@@ -7,6 +7,7 @@ const register = async (req, res) => {
 
 	// Validate data
     const { name, email, password } = req.body
+    
 	try {
 		if (!name || !email || !password) throw new Error('Missing required fields!')
 	} catch (err) {
@@ -54,14 +55,14 @@ const login = async (req, res) => {
 			}
 		},
 		process.env.ACCESS_TOKEN_SECRET,
-		{ expiresIn: '30s' }
+		{ expiresIn: '15m' }
 	)
 
 	// Create refresh token
 	const refreshToken = jwt.sign(
 		{ "id": user._id },
 		process.env.REFRESH_TOKEN_SECRET,
-		{ expiresIn: '1m' }
+		{ expiresIn: '1d' }
 	)
 
 	// Respond with secure cookie (with refresh token) and access token
@@ -104,7 +105,7 @@ const refresh = async (req, res) => {
 					}
 				},
 				process.env.ACCESS_TOKEN_SECRET,
-				{ expiresIn: '30s' }
+				{ expiresIn: '15m' }
 			)
 			res.json({ accessToken })
         }
