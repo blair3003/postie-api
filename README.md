@@ -41,4 +41,4 @@ Features of the API include:
 | /users			| DELETE	| delete user*		|
 | /users/{id}		| GET		| view user			|
 
-\**Protected endpoints
+\**Protected endpoints*
