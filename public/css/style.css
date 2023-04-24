@@ -4,3 +4,16 @@
     box-sizing: border-box;
 }
 
+html {
+    font-family: 'Pacifico', 'cursive';
+    font-size: 3rem;
+    text-align: center;
+}
+
+body {
+    min-height: 100vh;
+    background-color: #fef2f2;
+    color: #1e293b;
+    display: grid;
+    place-content: center;
+}
