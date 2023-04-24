@@ -21,22 +21,24 @@ Features of the API include:
 
 ## Endpoints
 
-/				GET			index
-/auth			POST		login
-/auth/refresh	GET			refresh
-/auth/register	POST		register
-/auth/logout	POST		logout
-/images/{id}	GET			view image
-/posts			GET			all posts
-/posts			POST		create post*
-/posts			PATCH		update post*
-/posts			DELETE		delete post*
-/posts/{id}		GET			view post
-/posts/comments	POST		create comment*
-/posts/comments	DELETE		delete comment*
-/users			GET			all users*
-/users			PATCH		update user*
-/users			DELETE		delete user*
-/users/{id}		GET			view user
+| Endpoint 			| Method 	| Description 		|
+| ---				| ---		| ---				|
+| /					| GET		| index				|
+| /auth				| POST		| login				|
+| /auth/refresh		| GET		| refresh			|
+| /auth/register	| POST		| register			|
+| /auth/logout		| POST		| logout			|
+| /images/{id}		| GET		| view image		|
+| /posts			| GET		| all posts			|
+| /posts			| POST		| create post*		|
+| /posts			| PATCH		| update post*		|
+| /posts			| DELETE	| delete post*		|
+| /posts/{id}		| GET		| view post			|
+| /posts/comments	| POST		| create comment*	|
+| /posts/comments	| DELETE	| delete comment*	|
+| /users			| GET		| all users*		|
+| /users			| PATCH		| update user*		|
+| /users			| DELETE	| delete user*		|
+| /users/{id}		| GET		| view user			|
 
-\**Protected routes
+\**Protected endpoints
