@@ -124,14 +124,17 @@ const destroy = async (req, res) => {
 		return res.status(400).json({ error: err.message })
 	}
 
-	// Get image
-    const image = await Image.findById(user.pic.split('/').slice(-1)[0]).exec()
-
-    // Delete image
-    const deletedImage = await image.deleteOne()
-    if (!deletedImage) {
-        return res.status(400).json({ message: 'Failed to delete image' })
-    }
+	if (user.pic) {
+		// Get image
+	    const image = await Image.findById(user.pic.split('/').slice(-1)[0]).exec()
+	    // Delete image
+	    if (image) {
+		    const deletedImage = await image.deleteOne()
+		    if (!deletedImage) {
+		        return res.status(400).json({ message: 'Failed to delete image' })
+		    }
+	    }
+	}
 
 	// Delete user	
     const deleted = await user.deleteOne()
