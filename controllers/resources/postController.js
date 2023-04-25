@@ -119,7 +119,7 @@ const store = async (req, res) => {
         title,
         author: authorId,
         body,
-        thumbnail: `https://postie.onrender.com/images/${image._id}`,
+        thumbnail: `https://postie-api.onrender.com/images/${image._id}`,
         tags
     })
     if (!post) {
