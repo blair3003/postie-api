@@ -88,7 +88,7 @@ const update = async (req, res) => {
 		        return res.status(400).json({ message: 'Failed to delete existing pic' })
 		    }
 	    }
-	    user.pic = `http://localhost:3500/images/${newPic._id}`
+	    user.pic = `https://postie.onrender.com/images/${newPic._id}`
     }
 
 
