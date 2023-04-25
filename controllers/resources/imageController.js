@@ -13,7 +13,9 @@ const show = async (req, res) => {
     if (!image) {
         return res.status(400).json({ message: 'Image does not exist!' })
     }
-    res.set('Content-Type', image.mimetype).send(image.data)
+
+    // res.set('Content-Type', image.mimetype).send(image.data)
+    res.send(image)
 }
 
 module.exports = { show }
