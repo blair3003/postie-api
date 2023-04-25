@@ -5,7 +5,10 @@ const imageCache = (req, res, next) => {
 	const key = `__postie__${req.originalUrl}`
 	const cached = cache.get(key)
 
-	if (cached) return res.set('Content-Type', cached.mimetype).send(cached.data)
+	if (cached) {
+		console.log('returning cached')
+		return res.set('Content-Type', cached.mimetype).send(cached.data)
+	}
 
 	res.sendResponse = res.send
 	res.send = (image) => {

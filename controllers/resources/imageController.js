@@ -3,6 +3,8 @@ const Image = require('../../models/Image')
 
 const show = async (req, res) => {
 
+    console.log('making db call')
+
     // Validate data
     const { id } = req.params
     if (!id || !mongoose.Types.ObjectId.isValid(id)) {
