@@ -81,12 +81,14 @@ const update = async (req, res) => {
 	    if (!newPic) {
 	        return res.status(400).json({ message: 'Failed to upload new pic!' })
 	    }
-		const oldPic = await Image.findById(user.pic.split('/').slice(-1)[0]).exec()
-	    if (oldPic) {
-		    const deletedImage = await oldPic.deleteOne()
-		    if (!deletedImage) {
-		        return res.status(400).json({ message: 'Failed to delete existing pic' })
-		    }
+	    if (user.pic) {
+			const oldPic = await Image.findById(user.pic.split('/').slice(-1)[0]).exec()
+		    if (oldPic) {
+			    const deletedImage = await oldPic.deleteOne()
+			    if (!deletedImage) {
+			        return res.status(400).json({ message: 'Failed to delete existing pic' })
+			    }
+		    }	    	
 	    }
 	    user.pic = `https://postie-api.onrender.com/images/${newPic._id}`
     }
