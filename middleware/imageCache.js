@@ -1,6 +1,6 @@
 const cache = require('memory-cache')
 
-const CACHE_DURATION = 30 * 24 * 60 * 60 * 1000
+const CACHE_DURATION = 10 * 24 * 60 * 60 * 1000
 
 const imageCache = (req, res, next) => {
 
