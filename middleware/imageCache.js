@@ -8,13 +8,14 @@ const imageCache = (req, res, next) => {
 	const cached = cache.get(key)
 
 	if (cached) {
-		console.log('returning cached')
+		console.log(`returning cached - ${key}`)
 		return res.set('Content-Type', cached.mimetype).send(cached.data)
 	}
 
 	res.sendResponse = res.send
 	res.send = (image) => {
 		cache.put(key, image, CACHE_DURATION)
+		console.log(`image cached - ${key}`)
 		res.set('Content-Type', image.mimetype).sendResponse(image.data)
 	}
 

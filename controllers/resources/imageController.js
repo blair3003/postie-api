@@ -3,10 +3,11 @@ const Image = require('../../models/Image')
 
 const show = async (req, res) => {
 
-    console.log('making db call')
-
     // Validate data
     const { id } = req.params
+
+    console.log(`making db call - ${id}`)
+    
     if (!id || !mongoose.Types.ObjectId.isValid(id)) {
         return res.status(400).json({ message: 'Valid Image ID required' })
     }    
